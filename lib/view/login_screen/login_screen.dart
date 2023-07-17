@@ -1,10 +1,13 @@
 
+import 'package:brain_school_starter/widget/login_screen/login_continer.dart';
+import 'package:brain_school_starter/widget/login_screen/login_textbutton.dart';
 import 'package:flutter/material.dart';
 
 import '../../constants/colors_constants.dart';
 import '../../constants/image_constants.dart';
 import '../../componets/app_input_textfrom_field.dart';
 import '../../componets/custom_button.dart';
+import '../../view_model/database_helper_class/database_helper.dart';
 
 class Loginscreen extends StatefulWidget {
   const Loginscreen({super.key});
@@ -14,7 +17,7 @@ class Loginscreen extends StatefulWidget {
 }
 
 class _LoginscreenState extends State<Loginscreen> {
-  TextEditingController _useremail=TextEditingController();
+  TextEditingController _emailController=TextEditingController();
 
   TextEditingController _userPasswordController = TextEditingController();
 
@@ -30,62 +33,9 @@ class _LoginscreenState extends State<Loginscreen> {
       body: Form(
         key: _formKey,
         child: ListView(
-          children: [
-            Container(
-              width: MediaQuery.of(context).size.width,
-              height: MediaQuery.of(context).size.height/2.0,
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  Image.asset(
-
-                    ImageConstants.splash,
-                    height: 150,width: 150,),
-                  SizedBox(height: kDefaultPadding / 2, ),
-
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text("Hi",
-                        style: Theme.of(context).textTheme.bodyText1!
-                            .copyWith(
-                          color: kTextWhiteColor,
-                          fontSize: 35,
-                          // fontWeight: FontWeight.w200,
-
-                        ),
-
-
-                      ),
-                      Text("Student",
-                        style: Theme.of(context).textTheme.bodyText1!
-                            .copyWith(
-                          color: kTextWhiteColor,
-                          fontSize: 35,
-                          // fontWeight: FontWeight.w100,
-
-                        ),
-                      ),
-                    ],
-                  ),
-                  SizedBox(height:kDefaultPadding /6,),
-                  Text("Sign to  continue",
-                    style: Theme.of(context).textTheme.bodyText1!
-                        .copyWith(
-                      color: kTextWhiteColor,
-                      fontSize: 25,
-                      // fontWeight: FontWeight.w100,
-
-                    ),
-
-                  )
-                ],
-
-              ),
-
-            ),
-
+           children: [
+            Logincintiner(title: "Sign to  continue",),
+           
             Container(
               height: MediaQuery.of(context).size.height,
               width: MediaQuery.of(context).size.width,
@@ -101,7 +51,7 @@ class _LoginscreenState extends State<Loginscreen> {
                 children: [
                   SizedBox(height:kDefaultPadding ,),
                   AppInputTextField(
-                    controller: _useremail,
+                    controller: _emailController,
                     validator: (value) {
                       if(value!.isEmpty){
                         return "Please enter user email";
@@ -115,6 +65,7 @@ class _LoginscreenState extends State<Loginscreen> {
                     labelText: "please enter user email",
                     hintText: "Enter Email",
                     prefixIcon: Icon(Icons.message),
+                     keyboardType:TextInputType.emailAddress ,
                   ),
                   AppInputTextField(
                     controller: _userPasswordController,
@@ -141,32 +92,59 @@ class _LoginscreenState extends State<Loginscreen> {
                       child: _isObscureText
                           ? Icon(Icons.visibility_off)
                           : Icon(Icons.visibility),
-                    ),
+                    ), keyboardType: TextInputType.emailAddress,
                   ),
                   SizedBox(height:kDefaultPadding ,),
 
-                  CustomButton(
-                    text: "SIGN IN",
+                  // CustomButton(
+                  //   text: "SIGN IN",
 
-                    onTop: ()async{
-                      if (_formKey.currentState!.validate()) {
-                        Navigator.pushNamed(context, "/home");
-                        print("sign button clicked");
+                  //   onTop: ()async{
+                  //     if (_formKey.currentState!.validate()) {
+                  //       Navigator.pushNamed(context, "/home");
+                  //       print("sign button clicked");
 
-                      }
+                  //     }
 
-                    },
+                  //   },
 
-                  ),
+                  // ),
+                 
 
-                  //  SizedBox(height:kDefaultPadding ,),
-                  //  Align(
-                  //   alignment: Alignment.bottomRight,
-                  //    child: Text("forgot password",
-                  //    textAlign: TextAlign.end,
-                  //    style: TextStyle(fontSize: 15,color: kPrimaryColor ),
-                  //    ),
-                  //  ),
+                    SizedBox(height:kDefaultPadding ,),
+
+                    
+               ElevatedButton(
+                  onPressed: _submitfrom, 
+                  child: Text("sign up")),
+                    // loginTextbutton(title: "sign up", onpressed: (){
+                    //   Navigator.pushNamed(context, "/signup");
+                    // }),
+
+                       TextButton(
+                        onPressed: (){
+                          Navigator.pushNamed(context, "/signup");
+                        },
+                         child:   RichText(text: TextSpan(
+                        text: "if you don't have  an account?",
+                        style: TextStyle(
+                          color: kTextBlackColor,
+                        ),
+                        children: [
+
+                          TextSpan(
+                              text: "   Sign up",
+                              style: TextStyle(
+                                fontSize: 20,
+                                color:kTextBlackColor,
+                                //fontWeight: FontWeight.bold
+                              )
+                          )
+                        ]
+                    )),
+                         ),
+                    
+                   
 
                 ],
               ),
@@ -176,4 +154,19 @@ class _LoginscreenState extends State<Loginscreen> {
       ),
     );
   }
+
+   void _submitfrom()async{
+  if(_formKey.currentState!.validate()){
+    // Navigator.popAndPushNamed(context, "/signup");
+    
+  final DataBase=  await DatabaseHelper.internal().getDatabase();
+    final instUser = "INSERT INTO user(name, email,phone,address ) VALUES('${_emailController.text}' ,'${  _userPasswordController.text}')";
+   await DataBase.execute(instUser);
+
+   // Get the records
+List<Map> list = await DataBase.rawQuery('SELECT * FROM user');
+print("saved user list$list");
+
+  }
+}
 }

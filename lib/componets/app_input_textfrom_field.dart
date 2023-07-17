@@ -11,7 +11,7 @@ class AppInputTextField extends StatelessWidget {
     required this.hintText,
     this.prefixIcon,
     this.suffixIcon,
-    this.obscureText
+    this.obscureText, required TextInputType keyboardType
   });
   final TextEditingController controller;
   final String? Function(String?) validator;
